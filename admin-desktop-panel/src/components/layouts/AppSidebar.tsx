@@ -10,10 +10,10 @@ import {
   SidebarMenuItem,
   SidebarHeader,
   useSidebar,
-  SidebarTrigger, // นำเข้า hook เพื่อเช็คสถานะการยุบ
 } from "../../components/ui/sidebar"
 import { Link, useLocation } from "react-router-dom"
 import { cn } from "../../lib/utils";
+import { useEffect } from "react";
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
@@ -28,6 +28,13 @@ export function AppSidebar() {
   const location = useLocation();
   const { state } = useSidebar(); // 'expanded' หรือ 'collapsed'
   const isCollapsed = state === "collapsed";
+
+  // ใช้ useEffect เพื่อตรวจจับการเปลี่ยนแปลงของ state และบันทึกลง localStorage
+  useEffect(() => {
+    // บันทึกค่า: ถ้าเป็น 'expanded' เก็บ true, ถ้าเป็น 'collapsed' เก็บ false
+    const isOpen = state === "expanded";
+    localStorage.setItem("sidebar_state", JSON.stringify(isOpen));
+  }, [state]); // ทำงานทุกครั้งที่ state ของ Sidebar เปลี่ยนแปลง
 
   return (
     <Sidebar 
