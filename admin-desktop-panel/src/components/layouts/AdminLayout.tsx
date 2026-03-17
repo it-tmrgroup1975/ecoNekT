@@ -22,7 +22,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </header>
 
             {/* Page Content */}
-            <div className="p-6 lg:p-10 max-w-7xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="p-6 lg:p-10 max-w-5/6 mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
               {children}
             </div>
           </main>

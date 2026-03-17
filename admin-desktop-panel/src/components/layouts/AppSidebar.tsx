@@ -43,7 +43,10 @@ export function AppSidebar() {
         {isCollapsed ? (
           /* โลโก้ตอนยุบ: อักษรตัวแรกสีเด่นในวงกลม Glassmorphism */
           <div className="flex h-11 w-11 items-center justify-center rounded-xl animate-in zoom-in-50 duration-300">
-            <span className="text-lg font-black tracking-tighter bg-gradient-to-br from-primary via-primary to-secondary bg-clip-text text-transparent">NekT</span>
+            <div className="font-black tracking-tighter bg-gradient-to-br from-primary via-primary to-secondary bg-clip-text text-transparent">
+              <span className="flex justify-end text-sm -mb-2.5">eco</span>
+              <span className="text-xl">NekT</span>
+            </div>
           </div>
         ) : (
           /* โลโก้ตอนขยาย: ชื่อเต็มพร้อม Gradient */
