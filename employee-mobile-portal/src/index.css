@@ -1,81 +1,123 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+
+@font-face {
+  font-family: 'Sarabun';
+  src: url('./assets/fonts/Sarabun-Light.woff2') format('woff2'), /* เบราว์เซอร์จะพยายามโหลดอันนี้ก่อน */
+       url('./assets/fonts/Sarabun-Light.ttf') format('truetype'); /* ถ้าไม่รองรับจะมาใช้อันนี้แทน */
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Sarabun';
+  src: url('./assets/fonts/Sarabun-Regular.woff2') format('woff2'), /* เบราว์เซอร์จะพยายามโหลดอันนี้ก่อน */
+       url('./assets/fonts/Sarabun-Regular.ttf') format('truetype'); /* ถ้าไม่รองรับจะมาใช้อันนี้แทน */
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Sarabun';
+  src: url('./assets/fonts/Sarabun-Bold.woff2') format('woff2'), /* เบราว์เซอร์จะพยายามโหลดอันนี้ก่อน */
+       url('./assets/fonts/Sarabun-Bold.ttf') format('truetype'); /* ถ้าไม่รองรับจะมาใช้อันนี้แทน */
+  font-weight: 700;
+  font-style: normal;
+}
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-    /* พื้นหลังนวล และตัวอักษร Slate เข้ม เพื่อถนอมสายตา */
-    --background: oklch(0.99 0.01 245);
-    --foreground: oklch(0.25 0.08 245);
-    
+    /* พื้นหลังนวล สะอาดตา */
+    --background: oklch(0.99 0.005 280);
+    --foreground: oklch(0.25 0.05 280);
+
     --card: oklch(1 0 0);
-    --card-foreground: oklch(0.25 0.08 245);
+    --card-foreground: oklch(0.25 0.05 280);
     --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.25 0.08 245);
+    --popover-foreground: oklch(0.25 0.05 280);
 
-    /* Primary: ปรับเป็น Vibrant Indigo (#6366F1) ในรูปแบบ OKLCH */
-    --primary: oklch(0.58 0.23 268); 
-    --primary-foreground: oklch(0.99 0.01 268);
+    /* Primary: Royal Violet (#7C3AED) */
+    --primary: oklch(0.55 0.22 290); 
+    --primary-foreground: oklch(0.99 0.01 290);
 
-    /* Secondary: ปรับเป็น Sky Blue (#0EA5E9) เพื่อความสดใส */
+    /* Secondary: Vivid Sky Blue (#0EA5E9) */
     --secondary: oklch(0.70 0.16 232);
-    --secondary-foreground: oklch(1 0 0);
+    --secondary-foreground: oklch(0.99 0.01 232);
 
-    /* Success: เพิ่ม Emerald (#10B981) สำหรับสถานะผ่าน */
+    /* Success: Emerald */
     --success: oklch(0.72 0.17 165);
     --success-foreground: oklch(0.99 0.01 165);
 
-    /* Muted & Accent */
-    --muted: oklch(0.96 0.02 245);
-    --muted-foreground: oklch(0.55 0.08 245);
-    --accent: oklch(0.92 0.06 232);
-    --accent-foreground: oklch(0.40 0.15 232);
+    /* Muted & Accent: Soft Lavender/Slate */
+    --muted: oklch(0.96 0.02 290);
+    --muted-foreground: oklch(0.55 0.08 290);
+    --accent: oklch(0.94 0.04 290);
+    --accent-foreground: oklch(0.35 0.15 290);
 
-    /* Destructive: สีแดงโทนสว่างที่ดู Active */
     --destructive: oklch(0.60 0.22 25);
     --destructive-foreground: oklch(0.99 0.02 25);
-    
-    --border: oklch(0.92 0.02 245);
-    --input: oklch(0.92 0.02 245);
-    --ring: oklch(0.58 0.23 268);
 
-    --radius: 0.75rem; /* ปรับให้โค้งมนขึ้นเพื่อความ Modern */
+    --border: oklch(0.92 0.02 290);
+    --input: oklch(0.92 0.02 290);
+    --ring: oklch(0.55 0.22 290);
 
-    /* Sidebar: โทน Slate นิ่งๆ เพื่อให้เนื้อหาตรงกลางดูโดดเด่น */
-    --sidebar: oklch(0.98 0.01 245);
-    --sidebar-foreground: oklch(0.35 0.08 245);
-    --sidebar-primary: oklch(0.58 0.23 268);
+    --radius: 0.75rem;
+
+    /* Sidebar/Navigation: Deep Violet Tint */
+    --sidebar: oklch(0.98 0.01 290);
+    --sidebar-foreground: oklch(0.35 0.08 290);
+    --sidebar-primary: oklch(0.55 0.22 290);
     --sidebar-primary-foreground: oklch(1 0 0);
 }
 
 .dark {
     /* Dark Mode: Navy-Slate ไม่ดำสนิท จ้องได้นาน */
-    --background: oklch(0.20 0.04 250);
-    --foreground: oklch(0.95 0.02 245);
-
-    --card: oklch(0.25 0.04 250);
-    --card-foreground: oklch(0.95 0.02 245);
-
-    --primary: oklch(0.65 0.20 268); 
-    --primary-foreground: oklch(0.20 0.04 250);
-
-    --secondary: oklch(0.40 0.12 232);
-    --secondary-foreground: oklch(0.95 0.02 245);
+    --background: oklch(0.18 0.04 290);
+    --foreground: oklch(0.95 0.02 280);
+    --card: oklch(0.22 0.04 290);
+    --card-foreground: oklch(0.985 0 0);
+    
+    --primary: oklch(0.65 0.20 290); 
+    --primary-foreground: oklch(0.205 0 0);
+    
+    --secondary: oklch(0.55 0.15 232);
+    --secondary-foreground: oklch(0.985 0 0);
 
     --success: oklch(0.65 0.15 165);
     --border: oklch(1 0 0 / 10%);
-    --sidebar: oklch(0.18 0.04 250);
+    --sidebar: oklch(0.205 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.809 0.105 251.813);
+    --chart-2: oklch(0.623 0.214 259.815);
+    --chart-3: oklch(0.546 0.245 262.881);
+    --chart-4: oklch(0.488 0.243 264.376);
+    --chart-5: oklch(0.424 0.199 265.638);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
 }
 
 @theme inline {
-    --font-sans: 'Geist Variable', sans-serif;
-    
+    --font-sans: 'Sarabun', ui-sans-serif, system-ui, sans-serif;
+
     /* Mapping สีเพิ่มเติมที่คุณต้องการ */
     --color-success: var(--success);
     --color-success-foreground: var(--success-foreground);
-    
+
     /* Mapping เดิมจาก Shadcn/Tailwind 4 */
     --color-background: var(--background);
     --color-foreground: var(--foreground);
@@ -105,9 +147,27 @@
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) * 0.8);
     --radius-sm: calc(var(--radius) * 0.6);
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 @layer base {
     * { @apply border-border outline-ring/50; }
-    body { @apply bg-background text-foreground antialiased; } /* เพิ่ม antialiased เพื่อให้ font สวยขึ้น */
+    body { @apply antialiased bg-background text-foreground; } /* เพิ่ม antialiased เพื่อให้ font สวยขึ้น */
+  html {
+    @apply font-sans;
+  }
 }
