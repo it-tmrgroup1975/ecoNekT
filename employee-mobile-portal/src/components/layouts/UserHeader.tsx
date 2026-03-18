@@ -34,8 +34,8 @@ export default function UserHeader({ className }: UserHeaderProps) {
     <div className={cn("flex items-center justify-between p-4 bg-white/95 backdrop-blur-sm sticky top-0 z-50 border-b border-slate-100", className)}>
       {/* โลโก้แอปฝั่งซ้าย */}
       <div className="flex flex-col">
-        <h1 className="text-2xl font-black text-primary italic tracking-tighter leading-none">ecoNekT</h1>
-        <span className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase pl-0.5">Portal</span>
+        <h1 className="text-3xl font-black text-primary italic tracking-tighter leading-none">ecoNekT</h1>
+        <span className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase pl-0.5">EMPLOYEE Portal</span>
       </div>
 
       {/* ส่วนข้อมูลผู้ใช้ฝั่งขวา (UI ระดับโลก) */}
