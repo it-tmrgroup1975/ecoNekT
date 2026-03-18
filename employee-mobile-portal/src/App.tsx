@@ -8,8 +8,8 @@ import Login from "./pages/Auth/Login";
 import Home from "./pages/Home/Home";
 import NotificationList from "./pages/Notifications/NotificationList";
 import { Attendance } from "./pages/Attendance/Attendance";
-import { Payroll } from "./pages/Payroll/Payroll";
 import Profile from "./pages/Profile/Profile";
+import Payroll from "./pages/Payroll/Payroll";
 
 function App() {
   return (

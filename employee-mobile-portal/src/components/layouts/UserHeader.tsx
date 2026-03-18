@@ -31,7 +31,7 @@ export default function UserHeader({ className }: UserHeaderProps) {
     : user?.email?.split('@')[0] || "User";
 
   return (
-    <div className={cn("flex items-center justify-between p-4 bg-white/95 backdrop-blur-sm sticky top-0 z-10 border-b border-slate-100", className)}>
+    <div className={cn("flex items-center justify-between p-4 bg-white/95 backdrop-blur-sm sticky top-0 z-50 border-b border-slate-100", className)}>
       {/* โลโก้แอปฝั่งซ้าย */}
       <div className="flex flex-col">
         <h1 className="text-2xl font-black text-primary italic tracking-tighter leading-none">ecoNekT</h1>
