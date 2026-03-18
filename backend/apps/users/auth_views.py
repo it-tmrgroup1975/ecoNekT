@@ -73,6 +73,5 @@ class currentUserView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        # request.user จะถูกดึงมาจาก CookieJWTAuthentication ที่เราตั้งค่าไว้
-        serializer = UserSerializer(request.user)
+        serializer = UserSerializer(request.user, context={'request': request})
         return Response(serializer.data)
