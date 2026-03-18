@@ -3,50 +3,54 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework_simplejwt.views import TokenObtainPairView
+from django.contrib.auth import get_user_model
 from .serializers import UserSerializer
 
+User = get_user_model()
+
 class LoginView(TokenObtainPairView):
-    """
-    Login โดยใช้ SimpleJWT และเก็บ Tokens ไว้ใน HTTP-Only Cookies
-    """
     permission_classes = []
     
     def post(self, request, *args, **kwargs):
-        # เรียกใช้งาน Logic หลักของ SimpleJWT เพื่อตรวจสอบ User/Pass
+        # 1. เรียกใช้งาน SimpleJWT เพื่อตรวจสอบ User/Pass และสร้าง Tokens
         response = super().post(request, *args, **kwargs)
         
         if response.status_code == 200:
             access_token = response.data.get('access')
             refresh_token = response.data.get('refresh')
 
-            # สร้าง Response ใหม่เพื่อส่งข้อมูล User กลับไป (แทนที่จะส่งแค่ Tokens)
-            # เราจะไม่ส่ง Tokens กลับไปใน JSON Body เพื่อป้องกัน XSS
+            # 2. ดึง User Object จริงๆ ออกมา (เพราะ SimpleJWT ไม่ได้เซต request.user ให้ในทันที)
+            email = request.data.get('email')
+            user = User.objects.filter(email=email).first()
+
+            # 3. ปรับโครงสร้าง Data ที่จะส่งกลับไป
+            # ต้องส่ง context={'request': request} เข้าไปใน Serializer ด้วยเพื่อให้ได้ Full URL (Absolute URI)
             response.data = {
                 "message": "Login successful",
-                "user": UserSerializer(request.user).data if hasattr(request, 'user') and request.user.is_authenticated else None
+                "user": UserSerializer(user, context={'request': request}).data if user else None
             }
 
-            # 1. เก็บ Access Token ใน HTTP-Only Cookie (อายุสั้น)
+            # 4. เก็บ Tokens ใน HTTP-Only Cookies (เหมือนเดิม)
             response.set_cookie(
                 key='access_token',
                 value=access_token,
                 httponly=True,
-                secure=not settings.DEBUG, # True ใน Production (HTTPS)
+                secure=not settings.DEBUG,
                 samesite='Lax',
-                max_age=3600 # 1 ชั่วโมง
+                max_age=3600
             )
 
-            # 2. เก็บ Refresh Token ใน HTTP-Only Cookie (อายุยาว)
             response.set_cookie(
                 key='refresh_token',
                 value=refresh_token,
                 httponly=True,
                 secure=not settings.DEBUG,
                 samesite='Lax',
-                max_age=86400 * 7 # 7 วัน
+                max_age=86400 * 7
             )
             
         return response
+    
 
 class LogoutView(APIView):
     """

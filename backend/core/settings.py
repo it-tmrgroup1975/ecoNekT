@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -64,6 +65,18 @@ CORS_ALLOWED_ORIGINS = [
 # สำหรับการพัฒนาในเครื่อง (Local Development)
 SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SAMESITE = 'Lax'
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # ใช้งานได้ 1 ชั่วโมง
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    # Refresh ได้ภายใน 7 วัน
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+}
 
 # หากรันผ่าน HTTP (ไม่ใช่ HTTPS) ในเครื่องตนเอง ให้ตั้งเป็น False
 SESSION_COOKIE_SECURE = False
