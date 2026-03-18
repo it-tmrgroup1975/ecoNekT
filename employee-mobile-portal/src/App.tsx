@@ -6,10 +6,10 @@ import MobileLayout from "./components/layouts/MobileLayout";
 // นำเข้า Pages (สมมติว่าคุณแยกไฟล์แล้ว)
 import Login from "./pages/Auth/Login";
 import Home from "./pages/Home/Home";
-import Profile from "./pages/Profile/Profile";
 import NotificationList from "./pages/Notifications/NotificationList";
 import { Attendance } from "./pages/Attendance/Attendance";
 import { Payroll } from "./pages/Payroll/Payroll";
+import Profile from "./pages/Profile/Profile";
 
 function App() {
   return (

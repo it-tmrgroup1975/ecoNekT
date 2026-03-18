@@ -1,6 +1,6 @@
 import { useState, useEffect, type ReactNode } from "react" //
 import { Home, Calendar, QrCode, User, FileText, type LucideIcon } from "lucide-react"
-import { NavLink } from "react-router-dom"
+import { NavLink, Outlet } from "react-router-dom"
 import api from "../../api/axios" //
 
 // 1. นำเข้า UserHeader (Avatar และชื่อพนักงาน)
@@ -54,7 +54,7 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
 
       {/* ส่วนเนื้อหาหลัก */}
       <main className="flex-grow p-4 animate-in zoom-in-95 duration-300">
-        {children}
+        <Outlet />
       </main>
 
       {/* แถบเมนูด้านล่าง (Fixed Bottom Navigation) */}

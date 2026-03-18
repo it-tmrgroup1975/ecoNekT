@@ -8,7 +8,11 @@ interface UserHeaderProps {
 
 export default function UserHeader({ className }: UserHeaderProps) {
   // ดึงข้อมูล user จาก AuthContext
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+
+  if (!user && isAuthenticated) {
+    return <div className="h-16 bg-white animate-pulse" />; // Skeleton แบบง่าย
+  }
 
   // สร้างอักษรย่อสำหรับ Fallback (ปรับปรุงให้รองรับกรณีชื่อเป็นค่าว่าง)
   const getInitials = (firstName?: string, lastName?: string, email?: string) => {
@@ -22,7 +26,7 @@ export default function UserHeader({ className }: UserHeaderProps) {
   };
 
   // ตรวจสอบว่ามีชื่อแสดงผลหรือไม่ ถ้าไม่มีให้ใช้ส่วนแรกของ email
-  const displayName = user?.first_name || user?.last_name 
+  const displayName = user?.first_name || user?.last_name
     ? `${user.first_name} ${user.last_name}`.trim()
     : user?.email?.split('@')[0] || "User";
 
@@ -47,19 +51,22 @@ export default function UserHeader({ className }: UserHeaderProps) {
         </div>
 
         {/* Avatar พร้อมสถานะ Online */}
-        <div className="relative">
-          <Avatar className="w-11 h-11 border-2 border-white shadow-md shadow-slate-200 ring-1 ring-slate-100 transition-transform group-hover:scale-105">
-            {/* 1. เปลี่ยนจาก user.avatar เป็น user.avatar_url ตามข้อมูลจริงจาก API */}
-            <AvatarImage src={user?.avatar_url} alt={displayName} className="object-cover" />
-            
-            {/* 2. แสดง Fallback โดยส่ง email เข้าไปด้วยเผื่อกรณีชื่อว่าง */}
-            <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/5 text-primary font-black text-sm">
+        <div className="relative group cursor-pointer active:scale-95 transition-transform">
+          <Avatar className="w-11 h-11 border-2 border-white shadow-xl ring-1 ring-slate-100 overflow-hidden">
+            {/* 1. ใส่ Full URL จาก API */}
+            <AvatarImage
+              src={user?.avatar_url || ''}
+              className="object-cover"
+              alt={displayName}
+            />
+            {/* 2. Fallback จะทำงานเมื่อ src เป็น null หรือโหลดรูปไม่สำเร็จ */}
+            <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-black text-sm uppercase">
               {getInitials(user?.first_name, user?.last_name, user?.email)}
             </AvatarFallback>
           </Avatar>
-          
-          {/* Green Dot แสดงสถานะ Online */}
-          <span className="absolute bottom-0.5 right-0.5 block h-3 w-3 rounded-full ring-2 ring-white bg-emerald-500 shadow-sm" />
+
+          {/* Status indicator (UX: ทำให้แอปดูมีชีวิต) */}
+          <div className="absolute -right-0.5 -bottom-0.5 h-3.5 w-3.5 bg-emerald-500 border-2 border-white rounded-full shadow-sm animate-pulse" />
         </div>
       </div>
     </div>

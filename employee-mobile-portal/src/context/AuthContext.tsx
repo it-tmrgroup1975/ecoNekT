@@ -18,20 +18,30 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
- useEffect(() => {
-  api.get("/users/me/")
-    .then((res) => {
-      setIsAuthenticated(true);
-      setUser(res.data);
-    })
-    .catch((err) => {
-      console.error("ทำไมถึงโดนดีด?:", err.response?.data);
-      // ถ้า 401 หรือ Error ให้เซตเป็น false เพื่อให้ PublicRoute ยอมให้เข้าหน้า Login
-      setIsAuthenticated(false); 
-      setUser(null);
-    });
-}, []);
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await api.get("/users/me/");
+        setUser(res.data);
+        setIsAuthenticated(true);
+      } catch (err: any) {
+        // ตรวจสอบว่าถ้าเป็น 401 หรือ Token พัง
+        if (err.response?.status === 401) {
+          console.warn("Session expired, logging out...");
+        }
+
+        // สำคัญ: ต้องเซตเป็น false และ null เพื่อให้ระบบ "ยอมรับ" ว่าไม่ได้ล็อกอินแล้ว
+        setIsAuthenticated(false);
+        setUser(null);
+      } finally {
+        setLoading(false); // เลิกโชว์ Loading (ถ้ามี)
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   // ตัวอย่างง่ายๆ สำหรับโปรเจกต์คุณ (ใช้เช็คจาก localStorage เบื้องต้นคู่กับ Cookie)
   useEffect(() => {
@@ -41,8 +51,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = (userData: any) => {
     localStorage.setItem("is_logged_in", "true");
-    setIsAuthenticated(true);
     setUser(userData);
+    setIsAuthenticated(true);
   };
 
   const logout = () => {
@@ -50,6 +60,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setIsAuthenticated(false);
     setUser(null);
   };
+
+  // 3. ป้องกันแอป Render ก่อนโหลดเสร็จ (กัน Infinite Redirect)
+  if (loading) {
+    return <div className="h-screen flex items-center justify-center bg-slate-50 font-black text-primary animate-pulse">ecoNekT...</div>;
+  }
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
