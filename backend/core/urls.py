@@ -8,6 +8,7 @@ urlpatterns = [
     
     # เชื่อมโยง URL ของ apps/users เข้ามาที่ Prefix 'api/users/'
     path('api/users/', include('apps.users.urls')),
+    path('api/payroll/', include('apps.payroll.urls')),
     
     # หากมีแอปอื่นๆ เช่น attendance สามารถเพิ่มได้ที่นี่
     # path('api/attendance/', include('apps.attendance.urls')),

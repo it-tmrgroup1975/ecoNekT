@@ -1,53 +1,107 @@
-import { FileText, ChevronRight, TrendingUp } from "lucide-react";
+import { useEffect, useState } from "react";
+import { FileText, ChevronRight, TrendingUp, Loader2 } from "lucide-react";
+import api from "../../api/axios"; 
+import { format } from "date-fns"; // แนะนำให้ลง npm install date-fns เพื่อจัดการวันที่
+import { th } from "date-fns/locale";
+import { useNavigate } from "react-router-dom";
 
 export default function Payroll() {
-  const mockPayrolls = [
-    { id: 1, period: "งวดที่ 4", date: "28/02/2569", amount: "10,047.00" },
-    { id: 2, period: "งวดที่ 3", date: "15/02/2569", amount: "9,850.00" },
-    { id: 3, period: "งวดที่ 2", date: "31/01/2569", amount: "10,120.00" },
-    { id: 4, period: "งวดที่ 1", date: "15/01/2569", amount: "9,900.00" },
-  ];
+  const [payrolls, setPayrolls] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchPayrolls = async () => {
+      try {
+        // เรียก API ที่เราเพิ่งสร้าง (ViewSet จะกรองเฉพาะของ User คนนั้นให้เอง)
+        const response = await api.get("/payroll/my-payrolls/");
+        setPayrolls(response.data);
+      } catch (error) {
+        console.error("Failed to fetch payrolls", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPayrolls();
+  }, []);
+
+  // คำนวณยอดล่าสุด (งวดแรกใน Array)
+  const latestPayroll = payrolls.length > 0 ? payrolls[0] : null;
+
+  if (loading) {
+    return (
+      <div className="h-[60vh] flex flex-col items-center justify-center text-slate-400 gap-2">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <p className="text-xs font-bold uppercase tracking-widest">กำลังดึงข้อมูลเงินเดือน...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* Header Summary */}
+      
+      {/* 1. Header Summary - แสดงยอดจริงจากงวดล่าสุด */}
       <div className="bg-primary p-6 rounded-[2rem] text-white shadow-lg shadow-primary/20 relative overflow-hidden">
         <div className="relative z-10">
-          <p className="text-xs font-bold opacity-80 uppercase tracking-widest">เงินได้สุทธิงวดล่าสุด</p>
-          <h2 className="text-4xl font-black mt-2">10,047.00 <span className="text-sm font-bold">฿</span></h2>
+          <p className="text-xs font-bold opacity-80 uppercase tracking-widest">
+            เงินได้สุทธิงวดล่าสุด ({latestPayroll ? `งวดที่ ${latestPayroll.period_no}` : '-'})
+          </p>
+          <h2 className="text-4xl font-black mt-2">
+            {latestPayroll ? Number(latestPayroll.net_pay).toLocaleString() : "0.00"} 
+            <span className="text-sm font-bold ml-1">฿</span>
+          </h2>
+          
           <div className="flex items-center gap-2 mt-4 bg-white/10 w-fit px-3 py-1 rounded-full text-[10px] font-bold">
-            <TrendingUp className="w-3 h-3" /> เพิ่มขึ้น 2.5% จากงวดก่อน
+            <TrendingUp className="w-3 h-3" /> 
+            อัปเดตเมื่อ {latestPayroll ? format(new Date(latestPayroll.period_date), 'dd MMM yyyy', { locale: th }) : '-'}
           </div>
         </div>
         <FileText className="absolute -right-4 -bottom-4 w-32 h-32 opacity-10" />
       </div>
 
-      {/* Payroll History */}
+      {/* 2. Payroll History - รายการจริงจากฐานข้อมูล */}
       <div className="space-y-3">
-        <h3 className="px-1 text-sm font-black text-slate-800 uppercase tracking-tight">ประวัติเงินเดือน (4 งวดล่าสุด)</h3>
+        <h3 className="px-1 text-sm font-black text-slate-800 uppercase tracking-tight">
+          ประวัติเงินเดือน ({payrolls.length} งวดล่าสุด)
+        </h3>
         
         <div className="space-y-3">
-          {mockPayrolls.map((item) => (
-            <div key={item.id} className="bg-white border border-slate-100 rounded-2xl p-4 flex items-center justify-between shadow-sm active:scale-95 transition-all cursor-pointer hover:border-primary/20">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-primary font-bold shadow-inner">
-                  {item.id}
+          {payrolls.length > 0 ? (
+            payrolls.map((item) => (
+              <div 
+                key={item.id} 
+                className="bg-white border border-slate-100 rounded-2xl p-4 flex items-center justify-between shadow-sm active:scale-95 transition-all cursor-pointer hover:border-primary/20"
+                onClick={() => {/* TODO: Navigate to Detail Page */}}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-primary font-bold shadow-inner text-xs">
+                    งวด {item.period_no}
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black text-slate-800">
+                      รอบวันที่ {format(new Date(item.period_date), 'dd/MM/yyyy')}
+                    </h4>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase">โอนเข้าบัญชีแล้ว</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-sm font-black text-slate-800">{item.period}</h4>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase">{item.date}</p>
+                
+                <div onClick={() => navigate(`/payroll/${item.id}`)} className="text-right flex items-center gap-3">
+                  <div>
+                    <p className="text-sm font-black text-slate-800">
+                      {Number(item.net_pay).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </p>
+                    <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-tighter">สำเร็จ</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-300" />
                 </div>
               </div>
-              
-              <div className="text-right flex items-center gap-3">
-                <div>
-                  <p className="text-sm font-black text-slate-800">{item.amount}</p>
-                  <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-tighter">โอนสำเร็จ</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-300" />
-              </div>
+            ))
+          ) : (
+            <div className="text-center py-10 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+              <p className="text-xs font-bold text-slate-400 uppercase">ไม่พบข้อมูลการจ่ายเงิน</p>
             </div>
-          ))}
+          )}
         </div>
       </div>
 

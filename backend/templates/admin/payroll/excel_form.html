@@ -1,0 +1,25 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<div>
+    <div style="margin-bottom: 20px;">
+        <a href=".." class="button" style="background: #ccc; color: #333; padding: 10px 15px; text-decoration: none; border-radius: 5px;">← กลับหน้าหลัก</a>
+    </div>
+    
+    <div style="background: white; padding: 30px; border-radius: 10px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <h2 style="margin-top: 0; color: #444;">📊 นำเข้าข้อมูลเงินเดือนจาก Excel</h2>
+        <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
+            กรุณาใช้ไฟล์ .xlsx ที่มีหัวตาราง (Header) ตรงตามที่ระบบกำหนด เช่น <strong>employee_code, period_no, period_end_date, net_pay</strong> เป็นต้น
+        </p>
+        
+        <form action="." method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div style="margin-bottom: 20px; padding: 20px; border: 2px dashed #ddd; border-radius: 8px; text-align: center;">
+                {{ form.excel_file }}
+            </div>
+            <button type="submit" style="background: #417690; color: white; padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%;">
+                📤 เริ่มการนำเข้าข้อมูล
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

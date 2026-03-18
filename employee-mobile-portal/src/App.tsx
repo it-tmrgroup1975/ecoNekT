@@ -10,6 +10,7 @@ import NotificationList from "./pages/Notifications/NotificationList";
 import { Attendance } from "./pages/Attendance/Attendance";
 import Profile from "./pages/Profile/Profile";
 import Payroll from "./pages/Payroll/Payroll";
+import PayrollDetail from "./pages/Payroll/PayrollDetail";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
               <Route path="/home" element={<Home />} />
               <Route path="/attendance" element={<Attendance />} />
               <Route path="/payroll" element={<Payroll />} />
+              <Route path="/payroll/:id" element={<PayrollDetail />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/notifications" element={<NotificationList />} />
               
