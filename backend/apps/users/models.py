@@ -34,10 +34,19 @@ class Company(models.Model):
 class Department(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='departments')
     name = models.CharField(max_length=100)
+    
+    # แก้ไขจาก on_row_delete เป็น on_delete
+    manager = models.ForeignKey(
+        'User', 
+        on_delete=models.SET_NULL,
+        null=True, 
+        blank=True, 
+        related_name='managed_departments'
+    )
 
-    # ส่วนนี้เพื่อให้ return ชื่อออกมา
     def __str__(self):
         return self.name
+
 
 class Position(models.Model):
     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='positions')
@@ -98,6 +107,14 @@ class Employee(models.Model):
         null=True, 
         blank=True
     )
+
+    supervisor = models.ForeignKey(
+        'self', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='subordinates'
+    )
     
     skills = models.JSONField(default=list)
     joined_at = models.DateField(auto_now_add=True)
@@ -109,3 +126,44 @@ class Employee(models.Model):
 
     def __str__(self):
         return f"{self.employee_code} - {self.user.email}"
+    
+
+# เพื่อรองรับการลาและการอนุมัติ
+class LeaveRequest(models.Model):
+    LEAVE_TYPES = (
+        ('sick', 'ลาป่วย'),
+        ('casual', 'ลากิจ'),
+        ('annual', 'ลาพักร้อน'),
+    )
+    STATUS_CHOICES = (
+        ('pending', 'รออนุมัติ'),
+        ('approved', 'อนุมัติแล้ว'),
+        ('rejected', 'ปฏิเสธ'),
+    )
+
+    employee = models.ForeignKey('Employee', on_delete=models.CASCADE, related_name='leave_requests')
+    leave_type = models.CharField(max_length=10, choices=LEAVE_TYPES)
+    rejection_reason = models.TextField(null=True, blank=True)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    reason = models.TextField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    
+    # ผู้ที่ทำการอนุมัติจริง
+    approved_by = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "การลา"
+        verbose_name_plural = "ข้อมูลการลา"
+
+
+class Notification(models.Model):
+    user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='notifications')
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']

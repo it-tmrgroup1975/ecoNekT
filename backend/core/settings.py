@@ -14,7 +14,8 @@ SECRET_KEY = 'django-insecure-0k%ikxch6n)xkbygb*w#f^!fc%bhnzn^ermqm_e)l-be^h$3)u
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# อนุญาตเฉพาะการรันในเครื่องตัวเอง
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
 
 # URL ที่จะใช้เรียกรูปผ่าน Browser (เช่น http://localhost:8000/media/avatars/...)
 MEDIA_URL = '/media/'
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -50,6 +52,33 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+# เพิ่ม/แก้ไขค่าเหล่านี้ใน settings.py
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+]
+
+# สำหรับการพัฒนาในเครื่อง (Local Development)
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+# หากรันผ่าน HTTP (ไม่ใช่ HTTPS) ในเครื่องตนเอง ให้ตั้งเป็น False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+
+CORS_ALLOW_CREDENTIALS = True
+
+# 4. (เพิ่มเติม) หากมีการใช้ Custom Headers ในอนาคต
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "authorization",
+    "content-type",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
 ]
 
 # เปลี่ยนให้ระบบใช้ Authentication ตัวใหม่ที่สร้างขึ้น
@@ -63,6 +92,7 @@ REST_FRAMEWORK = {
 }
 
 ROOT_URLCONF = 'core.urls'
+
 
 TEMPLATES = [
     {
