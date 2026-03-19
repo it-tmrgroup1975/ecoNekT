@@ -1,36 +1,35 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import AttendanceRecord, AttendanceRawLog
+from .models import AttendanceRecord
 from .serializers import AttendanceRecordSerializer
 import pandas as pd
 from datetime import datetime
 from django.db import transaction
 from apps.users.models import Employee
+from django.utils import timezone
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
-class AttendanceViewSet(viewsets.ModelViewSet):
+class AttendanceRecordViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication]
     serializer_class = AttendanceRecordSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # พนักงานดูได้เฉพาะของตัวเอง
+        # Admin เห็นทั้งหมด, พนักงานเห็นแค่ของตัวเอง
+        if self.request.user.is_staff:
+            return AttendanceRecord.objects.all()
         return AttendanceRecord.objects.filter(employee__user=self.request.user)
 
-    @action(detail=False, methods=['post'], url_path='device-push')
-    def device_push(self, request):
-        """
-        Endpoint รองรับ ADMS / Auto-Push จากเครื่อง Bio40 ในอนาคต
-        """
-        # Logic สำหรับรับ JSON จากเครื่องจะอยู่ตรงนี้
-        return Response({"status": "received"}, status=status.HTTP_200_OK)
+    @action(detail=False, methods=['get'], url_path='my-history')
+    def my_history(self, request):
+        """API สำหรับพนักงานดูประวัติตัวเอง"""
+        records = self.get_queryset().order_by('-date')[:30] # ดึงย้อนหลัง 30 รายการ
+        serializer = self.get_serializer(records, many=True)
+        return Response(serializer.data)
 
-
-import pandas as pd
-from datetime import datetime
-from django.db import transaction
-from django.utils import timezone
-from apps.users.models import Employee
-from .models import AttendanceRecord
 
 def import_attendance_excel(file_path):
     """

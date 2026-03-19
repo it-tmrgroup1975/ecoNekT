@@ -1,9 +1,12 @@
+# apps/attendance/urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import AttendanceViewSet
+# แก้ไขบรรทัดนี้: เปลี่ยนจาก AttendanceViewSet เป็น AttendanceRecordViewSet
+from .views import AttendanceRecordViewSet 
 
 router = DefaultRouter()
-router.register(r'records', AttendanceViewSet, basename='attendance')
+# แก้ไขบรรทัดนี้ด้วยเช่นกัน
+router.register(r'', AttendanceRecordViewSet, basename='attendance')
 
 urlpatterns = [
     path('', include(router.urls)),
