@@ -14,6 +14,7 @@ import {
 import { Link, useLocation } from "react-router-dom"
 import { cn } from "../../lib/utils";
 import { useEffect } from "react";
+import { useIsMobile } from "../../hooks/use-mobile";
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
@@ -26,38 +27,54 @@ const menuItems = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const { state } = useSidebar(); // 'expanded' หรือ 'collapsed'
+  const isMobile = useIsMobile();
+  const { state, setOpenMobile } = useSidebar();
   const isCollapsed = state === "collapsed";
 
-  // ใช้ useEffect เพื่อตรวจจับการเปลี่ยนแปลงของ state และบันทึกลง localStorage
+  // ✅ ลอจิก 1: บันทึกสถานะ Sidebar ลง localStorage (สำหรับ Desktop เท่านั้น)
   useEffect(() => {
-    // บันทึกค่า: ถ้าเป็น 'expanded' เก็บ true, ถ้าเป็น 'collapsed' เก็บ false
-    const isOpen = state === "expanded";
-    localStorage.setItem("sidebar_state", JSON.stringify(isOpen));
-  }, [state]); // ทำงานทุกครั้งที่ state ของ Sidebar เปลี่ยนแปลง
+    if (!isMobile) {
+      const isOpen = state === "expanded";
+      localStorage.setItem("sidebar_state", JSON.stringify(isOpen));
+    }
+  }, [state, isMobile]);
+
+  // ✅ ลอจิก 2: เมื่อเป็น Mobile ให้ล้างค่า localStorage และบังคับปิดสถานะเริ่มต้น (Collapsed)
+  // เพื่อให้ต้องกด SidebarTrigger เท่านั้นถึงจะกางออก (Expanded) ตามภาพ
+  useEffect(() => {
+    if (isMobile) {
+      localStorage.removeItem("sidebar_state");
+      setOpenMobile(false); // ปิดไว้ก่อนเพื่อให้ Reactive ทันทีโดยไม่ต้อง Refresh
+    }
+  }, [isMobile, setOpenMobile]);
 
   return (
-    <Sidebar 
-      variant="floating" 
-      collapsible="icon" 
+    <Sidebar
+      variant="floating"
+      collapsible="icon"
       className="border-primary/10 bg-background/50 backdrop-blur-xl transition-all duration-500"
     >
-
       <SidebarHeader className={cn(
         "flex items-center justify-center transition-all duration-500 py-8",
         isCollapsed ? "px-0" : "px-6"
       )}>
-        {isCollapsed ? (
-          /* โลโก้ตอนยุบ: อักษรตัวแรกสีเด่นในวงกลม Glassmorphism */
+        {(isCollapsed && !isMobile) ? (
+          /* โลโก้ตอนยุบ (Collapsed) */
           <div className="flex h-11 w-11 items-center justify-center rounded-xl animate-in zoom-in-50 duration-300">
-            <div className="font-black tracking-tighter bg-gradient-to-br from-primary via-primary to-secondary bg-clip-text text-transparent">
-              <span className="flex justify-end text-sm -mb-2.5">eco</span>
+            <div className="font-black tracking-tighter bg-gradient-to-br from-primary via-primary to-secondary bg-clip-text text-transparent text-center leading-none">
+              <span className="block text-[8px] -mb-1">eco</span>
               <span className="text-xl">NekT</span>
             </div>
           </div>
         ) : (
-          /* โลโก้ตอนขยาย: ชื่อเต็มพร้อม Gradient */
-          <div className="flex flex-col w-full animate-in fade-in slide-in-from-left-4 duration-500">
+          /* โลโก้ตอนขยาย (Expanded) */
+          <div className={cn(
+            "flex flex-col w-full animate-in fade-in duration-500",
+            // ถ้าเป็น Mobile ให้เลื่อนจากซ้ายน้อยลง หรือเปลี่ยน Effect
+            isMobile ? "slide-in-from-left-2" : "slide-in-from-left-4",
+            // ตัวอย่างการปรับระยะห่างหรือขนาดตามสถานะ Mobile
+            isMobile ? "px-4" : "px-0"
+          )}>
             <h1 className="text-2xl font-black tracking-tighter bg-gradient-to-br from-primary via-primary to-secondary bg-clip-text text-transparent">
               ecoNekT
             </h1>
@@ -70,7 +87,8 @@ export function AppSidebar() {
 
       <SidebarContent className="px-0">
         <SidebarGroup>
-          {!isCollapsed && (
+          {/* บน Mobile จะแสดง Label เสมอเพราะ Sidebar จะกางออกเต็มพื้นที่ (Sheet/Drawer) */}
+          {(!isCollapsed || isMobile) && (
             <SidebarGroupLabel className="text-primary/40 font-bold text-[10px] uppercase tracking-widest mb-2 px-4">
               Main Management
             </SidebarGroupLabel>
@@ -81,9 +99,9 @@ export function AppSidebar() {
                 const isActive = location.pathname === item.url;
                 return (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton 
-                      asChild 
-                      isActive={isActive} 
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
                       tooltip={item.title}
                       className={cn(
                         "h-11 transition-all duration-300 rounded-xl",
@@ -96,7 +114,7 @@ export function AppSidebar() {
                           "w-5 h-5 transition-transform duration-300",
                           isActive ? "scale-110" : "text-muted-foreground group-hover:text-primary"
                         )} />
-                        {!isCollapsed && (
+                        {(!isCollapsed || isMobile) && (
                           <div className="flex items-center justify-between w-full ml-3 animate-in fade-in duration-500">
                             <span className="font-semibold text-sm">{item.title}</span>
                             {isActive && <ChevronRight className="w-4 h-4 opacity-50" />}
@@ -111,9 +129,9 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      
-      {/* Footer พื้นที่เล็กๆ ด้านล่าง */}
-      {!isCollapsed && (
+
+      {/* Footer System Online Status */}
+      {(!isCollapsed || isMobile) && (
         <div className="p-4 mt-auto border-t border-primary/5">
           <div className="bg-secondary/5 rounded-2xl p-3 flex items-center gap-3">
             <div className="h-2 w-2 rounded-full bg-secondary animate-pulse" />

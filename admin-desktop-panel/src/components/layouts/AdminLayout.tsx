@@ -5,12 +5,7 @@ import { AppSidebar } from "./AppSidebar"
 import { UserNav } from "./UserNav"
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  // อ่านค่าเริ่มต้นจาก localStorage (ถ้าไม่มีให้เป็น true คือขยายไว้)
-  const [defaultOpen, setDefaultOpen] = useState(() => {
-    const saved = localStorage.getItem("sidebar_state");
-    return saved !== null ? JSON.parse(saved) : true;
-  });
-
+  
   const [initialSidebarState] = useState(() => {
     const saved = localStorage.getItem("sidebar_state");
     // หากไม่มีการบันทึกไว้ ให้เป็น true (เปิด) เป็นค่าพื้นฐาน
