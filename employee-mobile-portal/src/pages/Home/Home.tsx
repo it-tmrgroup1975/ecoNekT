@@ -1,4 +1,4 @@
-import { Clock, CalendarCheck, Bell, ArrowRight, Play, Briefcase } from "lucide-react";
+import { Clock, CalendarCheck, ArrowRight, Play } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { cn } from "../../lib/utils";
 
