@@ -10,9 +10,6 @@ urlpatterns = [
     path('api/users/', include('apps.users.urls')),
     path('api/payroll/', include('apps.payroll.urls')),
     path('api/attendance/', include('apps.attendance.urls')),
-    
-    # หากมีแอปอื่นๆ เช่น attendance สามารถเพิ่มได้ที่นี่
-    # path('api/attendance/', include('apps.attendance.urls')),
 ]
 
 # ตรวจสอบว่าอยู่ใน Development Mode (DEBUG=True) ถึงจะเปิด Route สำหรับ Media

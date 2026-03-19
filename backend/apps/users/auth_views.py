@@ -27,6 +27,8 @@ class LoginView(TokenObtainPairView):
             # ต้องส่ง context={'request': request} เข้าไปใน Serializer ด้วยเพื่อให้ได้ Full URL (Absolute URI)
             response.data = {
                 "message": "Login successful",
+                "access": access_token, 
+                "refresh": refresh_token,
                 "user": UserSerializer(user, context={'request': request}).data if user else None
             }
 

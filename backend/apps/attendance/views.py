@@ -13,8 +13,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 class AttendanceRecordViewSet(viewsets.ModelViewSet):
-    authentication_classes = [JWTAuthentication]
     serializer_class = AttendanceRecordSerializer
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -29,6 +29,27 @@ class AttendanceRecordViewSet(viewsets.ModelViewSet):
         records = self.get_queryset().order_by('-date')[:30] # ดึงย้อนหลัง 30 รายการ
         serializer = self.get_serializer(records, many=True)
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'], url_path='my-summary')
+    def my_summary(self, request):
+        """ดึงสถิติสรุปของเดือนปัจจุบันสำหรับพนักงาน"""
+        today = timezone.now()
+        first_day = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        
+        # ดึงข้อมูลทั้งหมดของเดือนนี้
+        queryset = AttendanceRecord.objects.filter(
+            employee__user=request.user,
+            date__gte=first_day.date(),
+            date__lte=today.date()
+        )
+
+        summary = {
+            "present_count": queryset.filter(status='present').count(),
+            "late_count": queryset.filter(status='late').count(),
+            "absent_count": queryset.filter(status='absent').count(),
+            "month_name": today.strftime('%B'), # จะได้ชื่อเดือนภาษาอังกฤษ เช่น March
+        }
+        return Response(summary)
 
 
 def import_attendance_excel(file_path):
