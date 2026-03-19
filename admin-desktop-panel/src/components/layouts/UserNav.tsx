@@ -1,5 +1,6 @@
-import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar"
-import { Button } from "../../components/ui/button"
+import { useAuth } from "../../contexts/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar";
+import { Button } from "../../components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,37 +9,46 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../../components/ui/dropdown-menu"
+} from "../../components/ui/dropdown-menu";
+import { Link } from "react-router-dom";
 
 export function UserNav() {
+  // ดึงข้อมูล User และฟังก์ชัน logout จาก AuthContext
+  const { user, logout } = useAuth();
+
+  if (!user) return null;
+
+  const initials = `${user.first_name?.[0] || ""}${user.last_name?.[0] || "U"}`.toUpperCase();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        {/* Ring: ใช้สี Sky Blue (Secondary) เพื่อตัดกับสี Violet */}
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full ring-2 ring-secondary/20 hover:ring-secondary/40 transition-all">
+        <Button variant="ghost" className="my-5 relative h-10 w-10 rounded-full ring-2 ring-primary/10 hover:ring-primary/30 transition-all">
           <Avatar className="h-10 w-10 border-2 border-background">
-            <AvatarImage src="/avatars/admin-default.png" alt="Admin" />
-            <AvatarFallback className="bg-primary/10 text-primary font-bold">AD</AvatarFallback>
+            <AvatarImage src={user.avatar_url} alt={user.first_name} />
+            <AvatarFallback className="bg-primary/10 text-primary font-bold">{initials}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 mt-2 border-primary/10 shadow-xl shadow-primary/5" align="end" forceMount>
-        <DropdownMenuLabel className="font-normal">
+      <DropdownMenuContent className="w-56 mt-2 shadow-xl" align="end">
+        <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-bold leading-none text-primary">Super Admin</p>
-            <p className="text-xs leading-none text-muted-foreground/70">admin@econekt.io</p>
+            <p className="text-sm font-bold text-primary">{user.first_name} {user.last_name}</p>
+            <p className="text-xs text-muted-foreground">{user.email}</p>
           </div>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator className="bg-primary/5" />
+        <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem className="cursor-pointer hover:bg-secondary/10 hover:text-secondary">โปรไฟล์</DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer hover:bg-secondary/10 hover:text-secondary">การตั้งค่า</DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/profile" className="cursor-pointer w-full">โปรไฟล์</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer">การตั้งค่า</DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuSeparator className="bg-primary/5" />
-        <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer font-medium">
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={logout} className="text-destructive cursor-pointer">
           ออกจากระบบ
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
