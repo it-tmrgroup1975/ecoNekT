@@ -7,10 +7,10 @@ import MobileLayout from "./components/layouts/MobileLayout";
 import Login from "./pages/Auth/Login";
 import Home from "./pages/Home/Home";
 import NotificationList from "./pages/Notifications/NotificationList";
-import { Attendance } from "./pages/Attendance/Attendance";
 import Profile from "./pages/Profile/Profile";
 import Payroll from "./pages/Payroll/Payroll";
 import PayrollDetail from "./pages/Payroll/PayrollDetail";
+import Attendance from "./pages/Attendance/Attendance";
 
 function App() {
   return (

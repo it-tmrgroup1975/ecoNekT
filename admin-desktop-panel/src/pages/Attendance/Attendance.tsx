@@ -11,7 +11,7 @@ const Attendance = () => {
   useEffect(() => {
   const fetchHistory = async () => {
     // ดึง token มาเช็คก่อน (ถ้าคุณเก็บไว้ใน localStorage)
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem('access_token'); 
     if (!token) {
       console.warn("No token found, skipping fetch");
       setLoading(false);
