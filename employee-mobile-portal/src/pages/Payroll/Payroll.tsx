@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { FileText, ChevronRight, TrendingUp, Loader2 } from "lucide-react";
+import { FileText, ChevronRight, TrendingUp } from "lucide-react";
 import api from "../../api/axios"; 
-import { format } from "date-fns"; // แนะนำให้ลง npm install date-fns เพื่อจัดการวันที่
+import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
+// Import the skeleton component we created
+import { ListSkeleton } from "../../components/shared/MobileSkeletons";
 
 export default function Payroll() {
   const [payrolls, setPayrolls] = useState<any[]>([]);
@@ -13,12 +15,13 @@ export default function Payroll() {
   useEffect(() => {
     const fetchPayrolls = async () => {
       try {
-        // เรียก API ที่เราเพิ่งสร้าง (ViewSet จะกรองเฉพาะของ User คนนั้นให้เอง)
+        // Fetch payroll data from the backend API
         const response = await api.get("/payroll/my-payrolls/");
         setPayrolls(response.data);
       } catch (error) {
         console.error("Failed to fetch payrolls", error);
       } finally {
+        // Small delay to ensure smooth transition from skeleton to content
         setLoading(false);
       }
     };
@@ -26,22 +29,21 @@ export default function Payroll() {
     fetchPayrolls();
   }, []);
 
-  // คำนวณยอดล่าสุด (งวดแรกใน Array)
+  // Calculate the latest entry for the summary card
   const latestPayroll = payrolls.length > 0 ? payrolls[0] : null;
 
+  /* REFACTORING NOTE: 
+     We replaced the 'Loader2' full-screen spinner with 'ListSkeleton' 
+     to match the modern enterprise look and feel.
+  */
   if (loading) {
-    return (
-      <div className="h-[60vh] flex flex-col items-center justify-center text-slate-400 gap-2">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <p className="text-xs font-bold uppercase tracking-widest">กำลังดึงข้อมูลเงินเดือน...</p>
-      </div>
-    );
+    return <ListSkeleton />;
   }
 
   return (
     <div className="space-y-6 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
       
-      {/* 1. Header Summary - แสดงยอดจริงจากงวดล่าสุด */}
+      {/* 1. Header Summary - Displays actual data from the latest period */}
       <div className="bg-primary p-6 rounded-[2rem] text-white shadow-lg shadow-primary/20 relative overflow-hidden">
         <div className="relative z-10">
           <p className="text-xs font-bold opacity-80 uppercase tracking-widest">
@@ -60,7 +62,7 @@ export default function Payroll() {
         <FileText className="absolute -right-4 -bottom-4 w-32 h-32 opacity-10" />
       </div>
 
-      {/* 2. Payroll History - รายการจริงจากฐานข้อมูล */}
+      {/* 2. Payroll History - Mapping data from database */}
       <div className="space-y-3">
         <h3 className="px-1 text-sm font-black text-slate-800 uppercase tracking-tight">
           ประวัติเงินเดือน ({payrolls.length} งวดล่าสุด)
@@ -72,7 +74,7 @@ export default function Payroll() {
               <div 
                 key={item.id} 
                 className="bg-white border border-slate-100 rounded-2xl p-4 flex items-center justify-between shadow-sm active:scale-95 transition-all cursor-pointer hover:border-primary/20"
-                onClick={() => {/* TODO: Navigate to Detail Page */}}
+                onClick={() => navigate(`/payroll/${item.id}`)}
               >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-primary font-bold shadow-inner text-xs">
@@ -86,7 +88,7 @@ export default function Payroll() {
                   </div>
                 </div>
                 
-                <div onClick={() => navigate(`/payroll/${item.id}`)} className="text-right flex items-center gap-3">
+                <div className="text-right flex items-center gap-3">
                   <div>
                     <p className="text-sm font-black text-slate-800">
                       {Number(item.net_pay).toLocaleString(undefined, { minimumFractionDigits: 2 })}

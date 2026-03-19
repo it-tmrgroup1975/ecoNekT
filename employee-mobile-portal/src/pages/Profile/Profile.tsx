@@ -1,9 +1,10 @@
 import { useAuth } from "../../context/AuthContext";
 import api from "../../api/axios";
 import { User, LogOut, ChevronRight, ShieldCheck, Mail } from "lucide-react";
+import { ListSkeleton } from "../../components/shared/MobileSkeletons"; //
 
 export default function Profile() {
-  const { logout, user } = useAuth();
+  const { logout, user, isAuthenticated } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -17,12 +18,22 @@ export default function Profile() {
     }
   };
 
+  /* If user data is not yet available but the user is authenticated, 
+     show the ListSkeleton to maintain UI consistency during data fetching.
+  */
+  if (!user && isAuthenticated) {
+    return <ListSkeleton />; //
+  }
+
   // จัดการชื่อแสดงผลกรณีชื่อจริงยังเป็นค่าว่าง
   const displayName = user?.first_name 
     ? `${user.first_name} ${user.last_name}`.trim() 
     : user?.email?.split('@')[0] || "User";
 
   return (
+    /* We removed the <MobileLayout> wrapper here because this page is now 
+       rendered inside the <Outlet /> of MobileLayout defined in App.tsx.
+    */
     <div className="flex flex-col space-y-6 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
       
       {/* Profile Header (UI/UX ระดับโลก) */}
@@ -58,7 +69,7 @@ export default function Profile() {
       {/* Account Details */}
       <div className="space-y-3">
         <h3 className="px-5 text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-          <Mail className="w-3 h-3" /> ข้อมูลการติดต่อ
+          <     Mail className="w-3 h-3" /> ข้อมูลการติดต่อ
         </h3>
         <div className="bg-white p-5 rounded-3xl border border-slate-100 flex items-center justify-between shadow-sm">
           <span className="text-sm font-bold text-slate-500">อีเมลพนักงาน</span>

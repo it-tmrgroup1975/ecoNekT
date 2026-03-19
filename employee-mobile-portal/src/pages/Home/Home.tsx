@@ -1,12 +1,28 @@
+import React, { useEffect, useState } from "react";
 import { Clock, CalendarCheck, ArrowRight, Play } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { cn } from "../../lib/utils";
+import { DashboardSkeleton } from "../../components/shared/MobileSkeletons";
 
 export default function Home() {
   const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
 
-  // ดึงชื่อมาแสดงผล
+  // Effect to simulate data fetching from API
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500); // Artificial delay to demonstrate skeleton effect
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Get display name from user context
   const displayName = user?.first_name || user?.email?.split('@')[0] || "พนักงาน";
+
+  // If page is still loading, show the Dashboard Skeleton layout
+  if (isLoading) {
+    return <DashboardSkeleton />;
+  }
 
   return (
     <div className="flex flex-col space-y-5 pb-10 animate-in fade-in duration-700">
@@ -18,7 +34,7 @@ export default function Home() {
           <h2 className="text-2xl font-black text-slate-800">สวัสดี, {displayName}</h2>
         </div>
 
-        {/* Time Attendance Widget (ลงเวลาด่วน) */}
+        {/* Time Attendance Widget (Quick Check-in) */}
         <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm overflow-hidden relative group">
           <div className="flex justify-between items-center relative z-10">
             <div className="space-y-1">
@@ -32,17 +48,17 @@ export default function Home() {
               <p className="text-[11px] text-slate-400 font-medium">19 มีนาคม 2026 • สำนักงานใหญ่</p>
             </div>
             
-            <button className="z-5 bg-primary text-white p-4 rounded-xl shadow-lg shadow-primary/30 active:scale-95 transition-all flex items-center gap-2 hover:bg-primary/90">
+            <button className="z-10 bg-primary text-white p-4 rounded-xl shadow-lg shadow-primary/30 active:scale-95 transition-all flex items-center gap-2 hover:bg-primary/90">
               <Play className="w-5 h-5 fill-current" />
               <span className="font-bold text-sm">บันทึกเวลา</span>
             </button>
           </div>
           {/* Decorative background icon */}
-          <Clock className="absolute -right-4 -bottom-4 w-24 h-24 text-slate-50 -z-0" />
+          <Clock className="absolute -right-4 -bottom-4 w-24 h-24 text-slate-50 z-0" />
         </div>
       </section>
 
-      {/* 2. Leave Summary (โควตาวันลา) */}
+      {/* 2. Leave Summary (Leave Quota) */}
       <section className="space-y-3">
         <div className="flex items-center justify-between px-1">
           <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">สรุปวันลาคงเหลือ</h3>
@@ -56,7 +72,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. Recent Notifications (แจ้งเตือนล่าสุด) */}
+      {/* 3. Recent Notifications */}
       <section className="space-y-3">
         <div className="flex items-center justify-between px-1">
           <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">แจ้งเตือนล่าสุด</h3>
@@ -99,6 +115,9 @@ export default function Home() {
 
 // --- Sub Components ---
 
+/**
+ * Leave Quota Card Component
+ */
 function LeaveCard({ label, count, total, color, bg }: any) {
   return (
     <div className="bg-white border border-slate-100 rounded-xl p-3 flex flex-col items-center shadow-sm">
@@ -115,13 +134,16 @@ function LeaveCard({ label, count, total, color, bg }: any) {
   );
 }
 
+/**
+ * Single Notification Row Component
+ */
 function NotificationItem({ title, desc, time, type }: any) {
   const iconColor = {
     success: "bg-emerald-500",
     warning: "bg-amber-500",
     info: "bg-blue-500",
     danger: "bg-red-500"
-  }[type as 'success' | 'warning' | 'info'];
+  }[type as 'success' | 'warning' | 'info' | 'danger'];
 
   return (
     <div className="p-4 flex gap-3 active:bg-slate-50 transition-colors">

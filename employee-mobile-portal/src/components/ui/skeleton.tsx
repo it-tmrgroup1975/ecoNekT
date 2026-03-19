@@ -6,7 +6,7 @@ function Skeleton({
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("animate-pulse rounded-md bg-muted/50", className)} // Standard pulse animation using Tailwind
+      className={cn("animate-pulse rounded-md bg-muted/80", className)} // Standard pulse animation using Tailwind
       {...props}
     />
   )
