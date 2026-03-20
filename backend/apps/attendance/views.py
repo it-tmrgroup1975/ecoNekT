@@ -50,6 +50,40 @@ class AttendanceRecordViewSet(viewsets.ModelViewSet):
             "month_name": today.strftime('%B'), # จะได้ชื่อเดือนภาษาอังกฤษ เช่น March
         }
         return Response(summary)
+    
+    @action(detail=False, methods=['post'], url_path='check-in-out')
+    def check_in_out(self, request):
+        user = request.user
+        # ค้นหา Employee profile
+        try:
+            employee = user.employee_profile # สมมติว่าตั้ง related_name ไว้
+        except:
+            return Response({"error": "Employee profile not found"}, status=400)
+
+        now = timezone.now()
+        today = now.date()
+        lat = request.data.get('latitude')
+        lng = request.data.get('longitude')
+
+        # ใช้ update_or_create เพื่อจัดการ In/Out ใน Record เดียวกันของวันนั้น
+        record, created = AttendanceRecord.objects.get_or_create(
+            employee=employee,
+            date=today,
+            defaults={
+                'clock_in': now,
+                'source': 'mobile_gps',
+                'latitude': lat,
+                'longitude': lng,
+                'status': 'present' # พัฒนาต่อ: Logic ตรวจสอบสาย (Late) เทียบกับเวลาเข้างานจริง
+            }
+        )
+
+        if not created and not record.clock_out:
+            record.clock_out = now
+            record.save()
+            return Response({"message": "Clock-out successful", "time": now})
+
+        return Response({"message": "Clock-in successful", "time": now})
 
 
 def import_attendance_excel(file_path):

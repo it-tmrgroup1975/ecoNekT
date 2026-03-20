@@ -1,19 +1,26 @@
 import os
 from pathlib import Path
 from datetime import timedelta
+import environ
+
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False)
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-0k%ikxch6n)xkbygb*w#f^!fc%bhnzn^ermqm_e)l-be^h$3)u'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DEBUG', default=False)
 
 # อนุญาตเฉพาะการรันในเครื่องตัวเอง
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
@@ -69,8 +76,7 @@ SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SAMESITE = 'Lax'
 
 SIMPLE_JWT = {
-    # 'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # ใช้งานได้ 1 ชั่วโมง
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # ใช้งานได้ 1 ชั่วโมง
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    # Refresh ได้ภายใน 7 วัน
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
