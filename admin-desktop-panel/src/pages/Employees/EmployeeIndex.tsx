@@ -3,9 +3,9 @@ import api from "../../api/axios";
 import { DataTable } from "../../components/shared/DataTable";
 import { LayoutGrid, List } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar";
-import { EmployeeSkeleton } from "./components/EmployeeSkeleton"; // นำเข้า Skeleton ที่สร้างไว้
+import { EmployeeSkeleton } from "./components/EmployeeSkeleton";
 import type { Employee } from "../../types/employee";
-import type { ColumnDef } from "@tanstack/react-table"; // นำเข้า type สำหรับ columns
+import type { ColumnDef } from "@tanstack/react-table";
 import { cn } from "../../lib/utils";
 
 export default function EmployeeList() {
@@ -24,7 +24,6 @@ export default function EmployeeList() {
   }, [viewMode]);
 
   useEffect(() => {
-    // ดึงข้อมูลจริงจาก Django Backend พร้อมจัดการ Loading state
     setIsLoading(true);
     api.get("/users/employees/")
       .then((res) => {
@@ -34,30 +33,27 @@ export default function EmployeeList() {
         console.error("Failed to fetch employees:", err);
       })
       .finally(() => {
-        // หน่วงเวลาเล็กน้อยเพื่อให้ Transition ของ Skeleton ดูเนียนตาขึ้น (Optional)
         setTimeout(() => setIsLoading(false), 500);
       });
   }, []);
 
-  // กำหนด Columns พร้อมระบุ Type เพื่อป้องกัน Error 'row'
+  // กำหนด Columns โดยเรียกใช้ first_name และ last_name ที่ได้จาก Serializer โดยตรง
   const columns: ColumnDef<Employee>[] = [
     {
       header: "พนักงาน",
       accessorKey: "employee_code",
       cell: ({ row }) => {
         const emp = row.original;
-
-        // DEFENSIVE: ตรวจสอบว่ามี Object user หรือไม่ ป้องกันการเข้าถึง first_name/last_name จาก undefined
-        const user = emp?.user;
-        const firstName = user?.first_name || "ไม่ระบุ";
-        const lastName = user?.last_name || "";
-        const employeeCode = emp?.employee_code || "N/A";
+        
+        // ใช้ค่าจาก root object ของ emp ตามที่ Serializer ส่งมา
+        const firstName = emp.first_name || "ไม่ระบุ";
+        const lastName = emp.last_name || "";
+        const employeeCode = emp.employee_code || "N/A";
 
         return (
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10 border-2 border-primary/10">
-              {/* DEFENSIVE: ใช้ ?. และ ?? เพื่อส่งค่า undefined ให้ AvatarImage */}
-              <AvatarImage src={emp?.avatar ?? undefined} alt={employeeCode} />
+              <AvatarImage src={emp.avatar ?? undefined} alt={employeeCode} />
               <AvatarFallback className="bg-primary/5 text-primary font-bold">
                 {employeeCode.substring(0, 2)}
               </AvatarFallback>
@@ -77,7 +73,6 @@ export default function EmployeeList() {
     {
       header: "ตำแหน่ง",
       accessorKey: "position_details.title",
-      // DEFENSIVE: ใช้ Optional Chaining และระบุค่า Default หากตำแหน่งเป็นค่าว่าง
       cell: ({ row }) => {
         const title = row.original.position_details?.title || "ไม่ระบุตำแหน่ง";
         return <span className="font-medium text-slate-700">{title}</span>;
@@ -100,7 +95,6 @@ export default function EmployeeList() {
       accessorKey: "joined_at",
       cell: ({ getValue }) => {
         const dateStr = getValue() as string;
-        // DEFENSIVE: ตรวจสอบว่ามีวันที่หรือไม่ก่อนสร้าง Date Object
         if (!dateStr) return <span className="text-muted-foreground">-</span>;
 
         return (
@@ -118,14 +112,12 @@ export default function EmployeeList() {
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
       <div className="flex items-center justify-between">
         <div className="animate-in fade-in slide-in-from-left-4 duration-500">
           <h1 className="text-3xl font-black tracking-tighter text-primary">จัดการพนักงาน</h1>
           <p className="text-muted-foreground italic">ข้อมูลบุคลากรทั้งหมดในองค์กรของคุณ</p>
         </div>
 
-        {/* View Switcher */}
         <div className="bg-primary/5 p-1 rounded-2xl flex gap-1 border border-primary/5">
           <button
             onClick={() => setViewMode("list")}
@@ -148,7 +140,6 @@ export default function EmployeeList() {
         </div>
       </div>
 
-      {/* Content Section with Skeleton Logic */}
       {isLoading ? (
         <EmployeeSkeleton viewMode={viewMode} rowCount={6} />
       ) : (
@@ -168,14 +159,14 @@ export default function EmployeeList() {
                 >
                   <div className="flex flex-col items-center text-center space-y-4">
                     <Avatar className="h-24 w-24 ring-4 ring-secondary/10 group-hover:ring-secondary/20 transition-all duration-500">
-                      <AvatarImage src={emp.avatar ?? undefined} alt={emp.user?.first_name ?? "ไม่ระบุชื่อ"} />
+                      <AvatarImage src={emp.avatar ?? undefined} alt={emp.first_name || "ไม่ระบุชื่อ"} />
                       <AvatarFallback className="bg-primary/10 text-primary font-bold text-xl">
-                        {emp.user?.first_name.substring(0, 1)}
+                        {(emp.first_name || emp.employee_code).substring(0, 1)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="space-y-1">
                       <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors">
-                        {emp.user?.first_name} {emp.user?.last_name}
+                        {emp.first_name} {emp.last_name}
                       </h3>
                       <p className="text-sm text-secondary font-bold tracking-tight">
                         {emp.position_details?.title || "ไม่ระบุตำแหน่ง"}

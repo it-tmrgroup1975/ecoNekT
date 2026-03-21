@@ -5,18 +5,31 @@ from .models import Employee, LeaveRequest, Notification
 from .serializers import EmployeeSerializer, LeaveRequestSerializer, NotificationSerializer
 from django.db.models import Q
 
+
 class EmployeeViewSet(viewsets.ModelViewSet):
-    queryset = Employee.objects.all().select_related('user', 'position', 'position__department')
+    # 1. กำหนด queryset พื้นฐานพร้อม select_related เพื่อดึงข้อมูล User และ Position มาใน Query เดียว
+    # การใส่ 'user' ตรงนี้จะช่วยให้ฟิลด์ first_name, last_name, email ใน Serializer ทำงานได้เร็วขึ้น
+    queryset = Employee.objects.all().select_related(
+        'user', 
+        'position', 
+        'position__department'
+    )
     serializer_class = EmployeeSerializer
-    # เบื้องต้นอนุญาตให้เข้าถึงได้ทุกคนเพื่อทดสอบ (ควรเปลี่ยนเป็น IsAuthenticated ในภายหลัง)
     permission_classes = [permissions.AllowAny] 
 
     def get_queryset(self):
-        # กรองข้อมูลตามบริษัทของ User ที่ Login อยู่ (Multi-tenancy)
         user = self.request.user
+        
+        # 2. ใช้ self.queryset ที่ทำ select_related ไว้แล้วเป็นฐาน
+        qs = self.queryset
+        
+        # 3. กรองข้อมูลตามสิทธิ์ (Multi-tenancy) 
+        # ถ้าพนักงานไม่ใช่ Admin ให้เห็นเฉพาะเพื่อนร่วมบริษัทเดียวกัน
         if user.is_authenticated and user.role != 'admin':
-            return self.queryset.filter(user__company=user.company)
-        return self.queryset
+            # ตรวจสอบว่า User model มีความสัมพันธ์กับ company หรือไม่
+            qs = qs.filter(user__company=user.company)
+            
+        return qs
     
 
 class LeaveRequestViewSet(viewsets.ModelViewSet):

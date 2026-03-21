@@ -48,17 +48,30 @@ class PositionSerializer(serializers.ModelSerializer):
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
+    # ดึงข้อมูลจาก User Model (Read Only)
     email = serializers.EmailField(source='user.email', read_only=True)
+    first_name = serializers.ReadOnlyField(source='user.first_name') # เพิ่มบรรทัดนี้
+    last_name = serializers.ReadOnlyField(source='user.last_name')   # เพิ่มบรรทัดนี้
+    
     position_details = PositionSerializer(source='position', read_only=True)
     
     class Meta:
         model = Employee
         fields = [
-            'id', 'employee_code', 'email', 'position', 
-            'position_details', 'avatar', 'skills', 'joined_at'
+            'id', 
+            'employee_code', 
+            'email', 
+            'first_name',
+            'last_name',
+            'position', 
+            'position_details', 
+            'avatar', 
+            'skills', 
+            'joined_at'
         ]
 
     def update(self, instance, validated_data):
+        # ลอจิกการอัปเดตข้อมูล User ยังคงเหมือนเดิมที่คุณเขียนไว้
         user_data = validated_data.pop('user', None)
         if user_data:
             user = instance.user
